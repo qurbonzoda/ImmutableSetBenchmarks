@@ -12,20 +12,23 @@ fun main(args: Array<String>) {
     val tenMinutes = 5 * secondsInMinute * millisInSecond
     Thread.sleep(tenMinutes)
 
-    val outputFile = "teamcityArtifacts/persistentHashSet.csv"
-    val options = OptionsBuilder()
-            .jvmArgs("-Xms3072m", "-Xmx3072m")
-//            .include(".addDistinct$")
-            .warmupIterations(10)
-            .measurementIterations(10)
-            .warmupTime(TimeValue.milliseconds(2000))
-            .measurementTime(TimeValue.milliseconds(2000))
-            .param("implementation", *args)
-//            .param("listSize", BM_100000, BM_1000000)
-            .addProfiler("gc")
+    for (implementation in listOf("clojure", "scala")) {
+        val outputFile = "teamcityArtifacts/$implementation.csv"
+        val options = OptionsBuilder()
+                .jvmArgs("-Xms3072m", "-Xmx3072m")
+//                .include(".addDistinct$")
+                .warmupIterations(10)
+                .measurementIterations(10)
+                .warmupTime(TimeValue.milliseconds(2000))
+                .measurementTime(TimeValue.milliseconds(2000))
+                .include(implementation)
+//                .param("implementation", *args)
+//                .param("listSize", BM_10000, BM_100000)
+                .addProfiler("gc")
 
-    val runResults = Runner(options.build()).run()
-    printResults(runResults, outputFile)
+        val runResults = Runner(options.build()).run()
+        printResults(runResults, outputFile)
+    }
 }
 
 fun printResults(runResults: Collection<RunResult>, outputFile: String) {
